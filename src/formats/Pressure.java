@@ -1,0 +1,49 @@
+package formats;
+
+import java.util.Map;
+
+/**
+ * Created by vahriin on 2/11/17.
+ */
+
+/**
+ * Pressure in Pascal
+ */
+public class Pressure extends Data {
+    private final double ACCURACY = 0.1;
+
+    public Pressure() {
+        super("pressure");
+    }
+
+    public Pressure(double pressureValue) {
+        super("pressure", pressureValue);
+    }
+
+
+    public void updateValue(Map<String, Integer> dataList)
+            throws NoValueException, NegativeMeaningException {
+        Integer temporary = dataList.get(name);
+        if (temporary != null) {
+            if (temporary > 0) {
+                value = temporary.intValue() / ACCURACY;
+            } else {
+                throw new NegativeMeaningException("Pressure have negative meaning");
+            }
+        } else {
+            throw new NoValueException("Pressure is not of this map");
+        }
+    }
+
+    public double getAsPascal() {
+        return getValue();
+    }
+
+    public double getAsMmHg() {
+        return getValue() / 133.3224;
+    }
+
+    public double getAsBar() {
+        return getValue() / 100000;
+    }
+}
