@@ -15,10 +15,8 @@ hs_err_pid*
 .idea/
 *.iml
 .directory
-lib/arduino/.pioenvs
-lib/arduino/.piolibdeps
-lib/arduino/.gitignore
-lib/arduino/.directory
-lib/arduino/.travis.yml
-lib/arduino/platformio.ini
-lib/arduino/lib/readme.txt
+
+#Arduino project files
+/arduino/.*
+/arduino/platformio.ini
+/arduino/lib/readme.txt
