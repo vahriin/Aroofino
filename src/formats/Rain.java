@@ -1,17 +1,20 @@
 package formats;
 
+import userexcept.NegativeMeaningException;
+import userexcept.NoValueException;
+
 import java.util.Map;
 
 /**
  * Created by vahriin on 2/11/17.
  */
 public class Rain extends Data {
-    public final double ACCURACY = 1;
+    private final double ACCURACY = 1;
 
-    public final double DRY = 1024;
-    public final double DRIZZLE = 1000;
-    public final double RAIN = 800;
-    public final double SHOWER = 400;
+    private final double DRY = 1024;
+    private final double DRIZZLE = 1000;
+    private final double RAIN = 800;
+    private final double SHOWER = 400;
 
     public Rain() {
         super("rain");

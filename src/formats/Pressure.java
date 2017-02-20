@@ -1,5 +1,8 @@
 package formats;
 
+import userexcept.NegativeMeaningException;
+import userexcept.NoValueException;
+
 import java.util.Map;
 
 /**
@@ -10,7 +13,7 @@ import java.util.Map;
  * Pressure in Pascal
  */
 public class Pressure extends Data {
-    private final double ACCURACY = 0.1;
+    private final double ACCURACY = 1;
 
     public Pressure() {
         super("pressure");

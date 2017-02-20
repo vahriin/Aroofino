@@ -1,5 +1,8 @@
 package formats;
 
+import userexcept.NegativeMeaningException;
+import userexcept.NoValueException;
+
 import java.util.Map;
 
 /**
@@ -12,10 +15,6 @@ import java.util.Map;
 
 public class RelativeHumidity extends Data {
     private final double ACCURACY = 10.0;
-
-    public RelativeHumidity() {
-        super("humidity");
-    }
 
     public RelativeHumidity(int humidityValue) {
         super("humidity", humidityValue);
