@@ -10,7 +10,7 @@ import java.util.TooManyListenersException;
 /**
  * Created by vahriin on 2/18/17.
  */
-public class ArduinoListener implements SerialPortEventListener {
+public class ArduinoDialog implements SerialPortEventListener {
     private static final int TIME_OUT = 2000;
     //private static final int DATA_RATE = 9600;
 
@@ -77,9 +77,7 @@ public class ArduinoListener implements SerialPortEventListener {
                 byte data[] = new byte[available];
                 input.read(data, 0, available);
 
-
-
-                System.out.print(new String(data)); //TODO: change to setter of Parser
+                inputMessage = data;
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }
@@ -87,14 +85,24 @@ public class ArduinoListener implements SerialPortEventListener {
         // Ignore all the other eventTypes, but you should consider the other ones.
     }
 
+    public synchronized byte[] getMessage() {
+        return inputMessage;
+    }
+
+    /*public synchronized void sendCommand(String command) {
+
+    }*/
+
+
     public static void main(String[] args) {
-        ArduinoListener x = new ArduinoListener();
+        ArduinoDialog x = new ArduinoDialog();
         x.initialize("/dev/ttyACM0", 9600);
     }
 
     private SerialPort serialPort;
     private InputStream input;
     private OutputStream output;
+    private byte[] inputMessage;
 }
 
 
