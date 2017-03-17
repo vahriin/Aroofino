@@ -10,16 +10,19 @@ import java.util.TooManyListenersException;
 /**
  * Created by vahriin on 2/18/17.
  */
-public class ArduinoDialog implements SerialPortEventListener {
+public class ArduinoListener implements SerialPortEventListener {
     private static final int TIME_OUT = 2000;
-    //private static final int DATA_RATE = 9600;
+
+    public ArduinoListener() {
+        inputMessage = new byte[0];
+    }
 
     public void initialize(String nameOfPort, int dataRate) {
         CommPortIdentifier portId = null;
         try{
             portId = CommPortIdentifier.getPortIdentifier(nameOfPort); //temporary variable for open port
         } catch (NoSuchPortException ex) {
-            System.err.println("Failed to open Arduino connection: specified port was not found");
+            System.err.println("Failed to open ArduinoParser connection: specified port was not found");
             System.exit(1);
         }
 
@@ -27,7 +30,7 @@ public class ArduinoDialog implements SerialPortEventListener {
             serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT); //set name
             portId = null; // send pointer to GC
         } catch (PortInUseException ex) {
-            System.err.println("Failed to open Arduino connection: this device is already in use");
+            System.err.println("Failed to open ArduinoParser connection: this device is already in use");
             System.exit(1);
         }
 
@@ -37,7 +40,7 @@ public class ArduinoDialog implements SerialPortEventListener {
                     SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
         } catch (UnsupportedCommOperationException ex) {
-            System.err.println("Failed to open Arduino connection: this connection is not Serial Port");
+            System.err.println("Failed to open ArduinoParser connection: this connection is not Serial Port");
             System.exit(1);
         }
 
@@ -73,11 +76,15 @@ public class ArduinoDialog implements SerialPortEventListener {
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
+
                 int available = input.available();
                 byte data[] = new byte[available];
                 input.read(data, 0, available);
+                //System.out.println(new String(data));
+
 
                 inputMessage = data;
+                //System.out.println(new String(inputMessage));
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }
@@ -89,14 +96,12 @@ public class ArduinoDialog implements SerialPortEventListener {
         return inputMessage;
     }
 
-    /*public synchronized void sendCommand(String command) {
-
-    }*/
-
-
-    public static void main(String[] args) {
-        ArduinoDialog x = new ArduinoDialog();
-        x.initialize("/dev/ttyACM0", 9600);
+    public synchronized void sendCommand(byte[] command) {
+        try {
+            output.write(command);
+        } catch (IOException ex) {
+            System.err.println("Cannot send command to ArduinoParser: " + ex.getMessage());
+        }
     }
 
     private SerialPort serialPort;
