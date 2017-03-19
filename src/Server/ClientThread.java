@@ -20,8 +20,6 @@ public class ClientThread implements Runnable {
 
 
 
-            /*process request, return byte[] response*/
-            output.write(response);
             clientSocket.close();
         } catch (IOException ex) {
             System.err.println("No client available: " + ex.getMessage());

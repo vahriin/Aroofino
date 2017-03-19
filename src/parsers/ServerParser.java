@@ -1,21 +1,25 @@
 package parsers;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-
-import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by vahriin on 3/13/17.
+ * Created by vahriin on 3/18/17.
  */
 
 
@@ -23,10 +27,18 @@ import java.util.Map;
  * <?xml version="1.0" encoding="UTF-8"?>
  * <request>
  *     <weather>
- *         <item name="temperature" format="celsius"/>
- *         <item name="pressure" format="mm"/>
- *         <item name="humidity" format="percent"/>
- *         <item name="rain" format="status"/>
+ *         <item>
+ *             <name>temperature</name>
+ *         </item>
+ *         <item>
+ *             <name>humidity</name>
+ *         </item>
+ *         <item>
+ *             <name>pressure</name>
+ *         </item>
+ *         <item>
+ *             <name>rain</name>
+ *         </item>
  *     </weather>
  * </request>
  *
@@ -35,60 +47,125 @@ import java.util.Map;
  * <?xml version="1.0" encoding="UTF-8"?>
  * <response>
  *     <weather>
- *         <item name="temperature" format="celsius">25.4</item>
- *         <item name="pressure" format="mm">766.25</item>
- *         <item name="humidity" format="percent">55.9</item>
- *         <item name="rain" format="status">Dry</item>
+ *         <item>
+ *             <name>temperature</name>
+ *             <value>25.7</value>
+ *         </item>
+ *         <item>
+ *             <name>humidity</name>
+ *             <value>25.7</value>
+ *         </item>
+ *         <item>
+ *             <name>pressure</name>
+ *             <value>133000</value>
+ *         </item>
+ *         <item>
+ *             <name>rain</name>
+ *             <value>dry</value>
+ *         </item>
+ *     </weather>
+ * </response>
+ *
+ * if request has an error, then response will be:
+ *
+ * <response>
+ *     <weather>
+ *         <error>Wrong request</error>
  *     </weather>
  * </response>
  */
 
 
 public class ServerParser {
-    public ServerParser () throws ParserConfigurationException {
-        factory = DocumentBuilderFactory.newInstance();
-        setDocumentBuilder();
+    public ServerParser() throws ParserConfigurationException, TransformerConfigurationException {
+        this.builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+        this.transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
     }
 
-    public static Map<String, String> parse(InputStream istream) {
-        Map<String, String> mapWeatherRequest = null;
+    public Map<String, String> parse(String request) {
+        Map<String, String> mapWeatherRequest = new HashMap<>(1);
         try {
-            Document request = builder.parse(istream);
-            NodeList listLevel1 = request.getChildNodes();
+            Document docRequest = builder.parse(new InputSource(new StringReader(request)));
+            NodeList listLevel1 = docRequest.getDocumentElement().getChildNodes();
+
             for (int i = 0 ; i < listLevel1.getLength(); i++) {
-                Node currentNode = listLevel1.item(i);
-                if (currentNode.getNodeName().equals("weather")) {
-                    NodeList weatherChildren = currentNode.getChildNodes();
-                    mapWeatherRequest = new HashMap<>(weatherChildren.getLength(), 1);
-                    for (int j = 0; j < weatherChildren.getLength(); j++) {
-                        Element currentElement = (Element) weatherChildren.item(i);
-                        mapWeatherRequest.put(currentElement.getAttribute("name"), "0");
+                Element currentNode = (Element) listLevel1.item(i); //потенциальный косяк
+                if (currentNode.getTagName().equals("weather")) {
+                    NodeList weatherItems = currentNode.getElementsByTagName("name");
+                    for (int j = 0; j < weatherItems.getLength(); j++) {
+                        mapWeatherRequest.put(weatherItems.item(i).getTextContent(), "");
                     }
                 }
 
             }
+            
         } catch (org.xml.sax.SAXException ex) {
-            System.out.println("serverParseEx: SAXException " + ex.getMessage());
+            System.err.println("ServerParserEx: SAXException " + ex.getMessage());
+            mapWeatherRequest.put("error", "SAX error");
         } catch (IOException ex) {
-            System.out.println("serverParseEx: parse fail " + ex.getMessage() );
+            System.err.println("ServerParserEx: parse fail " + ex.getMessage());
+            mapWeatherRequest.put("error", "Wrong request");
         } finally {
-            if (mapWeatherRequest == null) {
-                mapWeatherRequest = new HashMap<>(0,1);
+            return mapWeatherRequest;
+        }
+    }
+
+    public String createResponse(Map<String, String> valuesMap) {
+        Document document = builder.newDocument();
+        Element root = document.createElement("response");
+        Element weather = document.createElement("weather");
+
+        document.appendChild(root);
+        root.appendChild(weather);
+
+        for (Map.Entry<String, String> currentEntry: valuesMap.entrySet()) {
+            if (!currentEntry.getKey().equals("error")) {
+                Element item = document.createElement("item");
+
+                Element name = document.createElement("name");
+                name.setTextContent(currentEntry.getKey());
+
+                Element value = document.createElement("value");
+                value.setTextContent(currentEntry.getValue());
+
+                item.appendChild(name);
+                item.appendChild(value);
+                weather.appendChild(item);
+            } else {
+                Element error = document.createElement(currentEntry.getKey());
+                error.setTextContent(currentEntry.getValue());
+                weather.appendChild(error);
             }
         }
-        return mapWeatherRequest;
+
+        StringWriter out = new StringWriter();
+
+        try{
+            transformer.transform(new DOMSource(document), new StreamResult(out));
+        } catch (TransformerException ex) {
+            System.err.println("ServerParserEx: fail tranform to string" + ex.getMessage());
+            //sorry, long string
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<response>\n<weather><error>Internal server error</error>\n</weather>\n</response>\n");
+        }
+        return out.toString();
     }
 
-    /*public static String composeResponse(Map<String, String> request) {
-        Document response = builder.newDocument();
-        response.
-    }*/
+    public static DocumentBuilder builder;
+    private static Transformer transformer;
 
-    private static void setDocumentBuilder()
-            throws ParserConfigurationException {
-        DocumentBuilder builder = factory.newDocumentBuilder();
+    public static void main(String[] args) throws Exception {
+        ServerParser parser = new ServerParser();
+        Map<String, String> mapin = new HashMap<>(2);
+        mapin.put("temperature", "12");
+        String xml = parser.createResponse(mapin);
+        Map<String, String> mapout = parser.parse("<request><weather><item><name>temperature</name></item></weather></request>");
+        for (Map.Entry<String, String> currentEntry: mapout.entrySet()) {
+             System.out.println(currentEntry.getKey() + ":" + currentEntry.getValue());
+        }
     }
-
-    private static DocumentBuilderFactory factory;
-    private static DocumentBuilder builder;
 }

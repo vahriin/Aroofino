@@ -9,11 +9,6 @@ import java.util.Map;
  * Created by vahriin on 2/11/17.
  */
 public abstract class Data {
-    /*public Data() {
-        name = "Data";
-        value = 0;
-    }*/
-
     public Data(String typeOfData) {
         name = typeOfData;
         value = 0;
@@ -27,6 +22,7 @@ public abstract class Data {
 
     public abstract void updateValue(Map<String, Integer> dataList)
             throws NoValueException, NegativeMeaningException;
+
 
     public double getValue() {
         return value;

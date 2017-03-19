@@ -29,24 +29,12 @@ public class Pressure extends Data {
         Integer temporary = dataList.get(name);
         if (temporary != null) {
             if (temporary > 0) {
-                value = temporary.intValue() / ACCURACY;
+                value = temporary / ACCURACY;
             } else {
                 throw new NegativeMeaningException("Pressure have negative meaning");
             }
         } else {
             throw new NoValueException("Pressure is not of this map");
         }
-    }
-
-    public double getAsPascal() {
-        return getValue();
-    }
-
-    public double getAsMmHg() {
-        return getValue() / 133.3224;
-    }
-
-    public double getAsBar() {
-        return getValue() / 100000;
     }
 }

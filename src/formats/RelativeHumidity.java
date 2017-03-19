@@ -26,16 +26,12 @@ public class RelativeHumidity extends Data {
         Integer temporary = dataList.get(name);
         if (temporary != null) {
             if (temporary > 0) {
-                value = temporary.intValue() / ACCURACY;
+                value = temporary / ACCURACY;
             } else {
                 throw new NegativeMeaningException("Humidity have negative meaning");
             }
         } else {
             throw new NoValueException("Temperature is not of this map");
         }
-    }
-
-    public double getAsPercent() {
-        return getValue();
     }
 }

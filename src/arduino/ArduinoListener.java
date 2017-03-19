@@ -18,45 +18,33 @@ public class ArduinoListener implements SerialPortEventListener {
     }
 
     public void initialize(String nameOfPort, int dataRate) {
-        CommPortIdentifier portId = null;
+        CommPortIdentifier portId;
         try{
-            portId = CommPortIdentifier.getPortIdentifier(nameOfPort); //temporary variable for open port
-        } catch (NoSuchPortException ex) {
-            System.err.println("Failed to open ArduinoParser connection: specified port was not found");
-            System.exit(1);
-        }
-
-        try {
-            serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT); //set name
-            portId = null; // send pointer to GC
-        } catch (PortInUseException ex) {
-            System.err.println("Failed to open ArduinoParser connection: this device is already in use");
-            System.exit(1);
-        }
-
-        try {
+            serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(nameOfPort)
+                    .open(this.getClass().getName(), TIME_OUT); //set name
             serialPort.setSerialPortParams(dataRate,
                     SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
-        } catch (UnsupportedCommOperationException ex) {
-            System.err.println("Failed to open ArduinoParser connection: this connection is not Serial Port");
-            System.exit(1);
-        }
-
-        try {
             input = serialPort.getInputStream();
             output = serialPort.getOutputStream();
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
-            System.exit(1);
-        }
-
-        try{
             serialPort.addEventListener(this);
             serialPort.notifyOnDataAvailable(true);
+
+        } catch (NoSuchPortException ex) {
+            System.err.println("ArduinoListenerEx: Failed to open ArduinoParser connection: specified port was not found");
+            System.exit(1);
+        } catch (PortInUseException ex) {
+            System.err.println("ArduinoListenerEx: Failed to open ArduinoParser connection: this device is already in use");
+            System.exit(1);
+        } catch (UnsupportedCommOperationException ex) {
+            System.err.println("ArduinoListenerEx: Failed to open ArduinoParser connection: this connection is not Serial Port");
+            System.exit(1);
+        } catch (IOException ex) {
+            System.err.println("ArduinoListenerEx: " + ex.getMessage());
+            System.exit(1);
         } catch (TooManyListenersException ex) {
-            System.err.println(ex.getMessage());
+            System.err.println("ArduinoListenerEX: " + ex.getMessage());
             System.exit(1);
         }
     }
@@ -80,16 +68,11 @@ public class ArduinoListener implements SerialPortEventListener {
                 int available = input.available();
                 byte data[] = new byte[available];
                 input.read(data, 0, available);
-                //System.out.println(new String(data));
-
-
                 inputMessage = data;
-                //System.out.println(new String(inputMessage));
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }
         }
-        // Ignore all the other eventTypes, but you should consider the other ones.
     }
 
     public synchronized byte[] getMessage() {
