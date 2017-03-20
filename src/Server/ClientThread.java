@@ -1,8 +1,6 @@
 package Server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -17,12 +15,17 @@ public class ClientThread implements Runnable {
         try {
             InputStream input = clientSocket.getInputStream();
             OutputStream output = clientSocket.getOutputStream();
+            DataInputStream dataInput = new DataInputStream(input);
+            DataOutputStream dataOutput = new DataOutputStream(output);
 
+            String request = dataInput.readUTF();
+            //processing request
+            dataOutput.writeUTF(response);
 
 
             clientSocket.close();
         } catch (IOException ex) {
-            System.err.println("No client available: " + ex.getMessage());
+            System.err.println("ClientThreadEx: No client available: " + ex.getMessage());
         }
     }
 

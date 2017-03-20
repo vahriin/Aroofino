@@ -78,9 +78,9 @@ import java.util.Map;
 
 public class ServerParser {
     public ServerParser() throws ParserConfigurationException, TransformerConfigurationException {
-        this.builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
-        this.transformer = TransformerFactory.newInstance().newTransformer();
+        transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
@@ -103,7 +103,7 @@ public class ServerParser {
                 }
 
             }
-            
+
         } catch (org.xml.sax.SAXException ex) {
             System.err.println("ServerParserEx: SAXException " + ex.getMessage());
             mapWeatherRequest.put("error", "SAX error");
@@ -123,7 +123,7 @@ public class ServerParser {
         document.appendChild(root);
         root.appendChild(weather);
 
-        for (Map.Entry<String, String> currentEntry: valuesMap.entrySet()) {
+        for (Map.Entry<String, String> currentEntry : valuesMap.entrySet()) {
             if (!currentEntry.getKey().equals("error")) {
                 Element item = document.createElement("item");
 
@@ -157,15 +157,4 @@ public class ServerParser {
 
     public static DocumentBuilder builder;
     private static Transformer transformer;
-
-    public static void main(String[] args) throws Exception {
-        ServerParser parser = new ServerParser();
-        Map<String, String> mapin = new HashMap<>(2);
-        mapin.put("temperature", "12");
-        String xml = parser.createResponse(mapin);
-        Map<String, String> mapout = parser.parse("<request><weather><item><name>temperature</name></item></weather></request>");
-        for (Map.Entry<String, String> currentEntry: mapout.entrySet()) {
-             System.out.println(currentEntry.getKey() + ":" + currentEntry.getValue());
-        }
-    }
 }
