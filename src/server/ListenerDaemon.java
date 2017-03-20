@@ -1,6 +1,4 @@
-package parsers;
-
-import Server.ClientThread;
+package server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
