@@ -13,7 +13,7 @@ import java.util.Map;
  * RelativeHumidity in percent
  */
 
-public class RelativeHumidity extends Data {
+/*public class RelativeHumidity extends Data {
     private final double ACCURACY = 10.0;
 
     public RelativeHumidity(int humidityValue) {
@@ -34,4 +34,4 @@ public class RelativeHumidity extends Data {
             throw new NoValueException("Temperature is not of this map");
         }
     }
-}
+}*/

@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by vahriin on 2/11/17.
  */
-public class Rain extends Data {
+/*public class Rain extends Data {
     private final double ACCURACY = 1;
 
     private final double DRY = 1024;
@@ -56,4 +56,4 @@ public class Rain extends Data {
             return "";
         }
     }
-}
+}*/

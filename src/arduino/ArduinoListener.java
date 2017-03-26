@@ -2,6 +2,7 @@ package arduino;
 
 import gnu.io.*;
 
+import javax.sound.midi.Soundbank;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,24 +14,23 @@ import java.util.TooManyListenersException;
 public class ArduinoListener implements SerialPortEventListener {
     private static final int TIME_OUT = 2000;
 
-    public ArduinoListener() {
+    public ArduinoListener(String nameOfPort, int dataRate)
+            throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException,
+            IOException, TooManyListenersException {
         inputMessage = new byte[0];
-    }
-
-    public void initialize(String nameOfPort, int dataRate) {
-        CommPortIdentifier portId;
-        try{
-            serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(nameOfPort)
-                    .open(this.getClass().getName(), TIME_OUT); //set name
-            serialPort.setSerialPortParams(dataRate,
-                    SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_NONE);
-            input = serialPort.getInputStream();
-            output = serialPort.getOutputStream();
-            serialPort.addEventListener(this);
-            serialPort.notifyOnDataAvailable(true);
-
+        /*try{*/
+        serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(nameOfPort)
+                .open(this.getClass().getName(), TIME_OUT); //set name
+        serialPort.setSerialPortParams(dataRate,
+                SerialPort.DATABITS_8,
+                SerialPort.STOPBITS_1,
+                SerialPort.PARITY_NONE);
+        input = serialPort.getInputStream();
+        output = serialPort.getOutputStream();
+        serialPort.addEventListener(this);
+        serialPort.notifyOnDataAvailable(true);
+        /*for next code*/
+        /*
         } catch (NoSuchPortException ex) {
             System.err.println("ArduinoListenerEx: Failed to open ArduinoParser connection: specified port was not found");
             System.exit(1);
@@ -46,7 +46,7 @@ public class ArduinoListener implements SerialPortEventListener {
         } catch (TooManyListenersException ex) {
             System.err.println("ArduinoListenerEX: " + ex.getMessage());
             System.exit(1);
-        }
+        }*/
     }
 
     public synchronized void close() {
@@ -56,19 +56,14 @@ public class ArduinoListener implements SerialPortEventListener {
         }
     }
 
-
-
-    /**
-     * Handle an event on the serial port. Read the data and print it.
-     */
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
-
                 int available = input.available();
                 byte data[] = new byte[available];
                 input.read(data, 0, available);
                 inputMessage = data;
+                //System.out.println(new String(inputMessage));
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }

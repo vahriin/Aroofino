@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Pressure in Pascal
  */
-public class Pressure extends Data {
+/*public class Pressure extends Data {
     private final double ACCURACY = 1;
 
     public Pressure() {
@@ -37,4 +37,4 @@ public class Pressure extends Data {
             throw new NoValueException("Pressure is not of this map");
         }
     }
-}
+}*/

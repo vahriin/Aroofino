@@ -12,10 +12,9 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -87,8 +86,8 @@ public class ServerParser {
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
     }
 
-    public Map<String, String> parse(String request) {
-        Map<String, String> mapWeatherRequest = new HashMap<>(1);
+    public synchronized ArrayList<String> parse(String request) {
+        ArrayList<String> mapWeatherRequest = new ArrayList<>(1);
         try {
             Document docRequest = builder.parse(new InputSource(new StringReader(request)));
             NodeList listLevel1 = docRequest.getDocumentElement().getChildNodes();
@@ -98,7 +97,7 @@ public class ServerParser {
                 if (currentNode.getTagName().equals("weather")) {
                     NodeList weatherItems = currentNode.getElementsByTagName("name");
                     for (int j = 0; j < weatherItems.getLength(); j++) {
-                        mapWeatherRequest.put(weatherItems.item(i).getTextContent(), "");
+                        mapWeatherRequest.add(weatherItems.item(i).getTextContent());
                     }
                 }
 
@@ -106,16 +105,16 @@ public class ServerParser {
 
         } catch (org.xml.sax.SAXException ex) {
             System.err.println("ServerParserEx: SAXException " + ex.getMessage());
-            mapWeatherRequest.put("error", "SAX error");
+            mapWeatherRequest.add("error");
         } catch (IOException ex) {
             System.err.println("ServerParserEx: parse fail " + ex.getMessage());
-            mapWeatherRequest.put("error", "Wrong request");
+            mapWeatherRequest.add("error");
         } finally {
             return mapWeatherRequest;
         }
     }
 
-    public String createResponse(Map<String, String> valuesMap) {
+    public synchronized String createResponse(Map<String, String> valuesMap) {
         Document document = builder.newDocument();
         Element root = document.createElement("response");
         Element weather = document.createElement("weather");

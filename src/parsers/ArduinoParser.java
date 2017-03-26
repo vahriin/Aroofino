@@ -23,18 +23,18 @@ import java.util.Map;
  */
 
 public class ArduinoParser {
-    public static Map<String, Integer> parse(byte[] message)
+    public Map<String, String> parse(byte[] message)
             throws CorruptedDataException {
         System.out.println(new String(message));
         if (message[0] == '<' && message[message.length - 2] == '>') { //check correct of data
 
             /*cut first '<' and last '>' and split*/
             String[] itemsString = new String(message).substring(1,message.length - 2).split("><");
-            Map<String, Integer> result = new HashMap<>(itemsString.length);
+            Map<String, String> result = new HashMap<>(itemsString.length);
 
             for (int i = 0; i < itemsString.length; i++) {
                 String[] tempItem = itemsString[i].split(":");
-                result.put(tempItem[0].toLowerCase(), Integer.parseInt(tempItem[1]));
+                result.put(tempItem[0].toLowerCase(), tempItem[1].toLowerCase());
             }
             return result;
         } else {

@@ -13,7 +13,7 @@ import java.util.Map;
  * Temperature in Kelvin
  */
 
-public class Temperature extends Data {
+/*public class Temperature extends Data {
     private final double ACCURACY = 10.0;
 
     public Temperature() {
@@ -38,4 +38,4 @@ public class Temperature extends Data {
             throw new NoValueException("Temperature is not of this map");
         }
     }
-}
+}*/
