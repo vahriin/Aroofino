@@ -7,7 +7,6 @@ import org.apache.commons.cli.*;
 import server.ThreadPool;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.util.TooManyListenersException;
@@ -15,16 +14,15 @@ import java.util.TooManyListenersException;
 /**
  * Created by vahriin on 3/20/17.
  */
-public class Aroofino {
+class Aroofino {
     public static void main(String[] args) {
         CommandLine commandLine = parseCLI(args);
         ArduinoThread weatherGetter = startArduinoThread(commandLine);
         Weather currentWeather = getWeather(commandLine);
         ThreadPool server = startServer(commandLine, currentWeather);
-        try {
-            currentWeather.wait();
-        } catch (InterruptedException ex) {
-            System.out.println("PIZDEC!" + ex.getMessage());
+
+        while (true) {
+            currentWeather.updateValues(weatherGetter.getDataMap());
         }
     }
 

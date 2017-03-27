@@ -87,7 +87,7 @@ public class ServerParser {
     }
 
     public synchronized ArrayList<String> parse(String request) {
-        ArrayList<String> mapWeatherRequest = new ArrayList<>(1);
+        ArrayList<String> mapWeatherRequest = new ArrayList<>(5);
         try {
             Document docRequest = builder.parse(new InputSource(new StringReader(request)));
             NodeList listLevel1 = docRequest.getDocumentElement().getChildNodes();
@@ -109,9 +109,8 @@ public class ServerParser {
         } catch (IOException ex) {
             System.err.println("ServerParserEx: parse fail " + ex.getMessage());
             mapWeatherRequest.add("error");
-        } finally {
-            return mapWeatherRequest;
         }
+        return mapWeatherRequest;
     }
 
     public synchronized String createResponse(Map<String, String> valuesMap) {
@@ -154,6 +153,6 @@ public class ServerParser {
         return out.toString();
     }
 
-    public static DocumentBuilder builder;
+    private static DocumentBuilder builder;
     private static Transformer transformer;
 }

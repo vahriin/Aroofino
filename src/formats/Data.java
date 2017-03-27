@@ -1,24 +1,22 @@
 package formats;
 
 import userexcept.NegativeMeaningException;
-import userexcept.NoValueException;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by vahriin on 2/11/17.
  */
-public class Data {
-    public Data(String typeOfData) {
+class Data {
+    Data(String typeOfData) {
         name = typeOfData;
         value = "0";
     }
 
-    public Data(String typeOfData, String valueData) {
-        name = typeOfData;
-        value = valueData;
-    }
+// --Commented out by Inspection START (3/27/17 11:42 PM):
+//    Data(String typeOfData, String valueData) {
+//        name = typeOfData;
+//        value = valueData;
+//    }
+// --Commented out by Inspection STOP (3/27/17 11:42 PM)
 
 
     public void updateValue(String newValue) throws NegativeMeaningException {
@@ -42,6 +40,6 @@ public class Data {
         return value.charAt(0) == '-';
     }
 
-    protected String name;
-    protected String value;
+    private final String name;
+    private String value;
 }

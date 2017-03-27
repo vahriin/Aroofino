@@ -10,8 +10,8 @@ import java.util.ArrayList;
 /**
  * Created by vahriin on 3/6/17.
  */
-public class ClientThread implements Runnable {
-    public ClientThread(Socket sock, Weather weatherLink, ServerParser parserLink) {
+class ClientThread implements Runnable {
+    ClientThread(Socket sock, Weather weatherLink, ServerParser parserLink) {
         clientSocket = sock;
         weather = weatherLink;
         parser = parserLink;
@@ -33,7 +33,7 @@ public class ClientThread implements Runnable {
         }
     }
 
-    private ServerParser parser;
+    private final ServerParser parser;
     private Weather weather;
-    private Socket clientSocket;
+    private final Socket clientSocket;
 }

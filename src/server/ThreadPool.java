@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,9 +24,11 @@ public class ThreadPool implements Runnable {
     }
 
     public void run() {
+        Socket client;
         while (true) {
             try {
-                threadPool.execute(new ClientThread(listenedPort.accept(), data, parser));
+                client = listenedPort.accept();
+                threadPool.execute(new ClientThread(client, data, parser));
             } catch (IOException ex) {
                 threadPool.shutdown();
                 System.err.println("ListenerDaemonEx: " + ex.getMessage());
@@ -36,5 +39,5 @@ public class ThreadPool implements Runnable {
     private ServerParser parser;
     private Weather data;
     private ServerSocket listenedPort;
-    private ExecutorService threadPool;
+    private final ExecutorService threadPool;
 }

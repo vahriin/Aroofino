@@ -36,7 +36,8 @@ public class Weather {
 
     public Map<String, String> getValues(ArrayList<String> typesOfData) {
         Map<String, String> valuesMap = new HashMap<>(typesOfData.size());
-        for (String itemOfType : typesOfData) { //переписать потом
+        //переписать потом
+        for (String itemOfType : typesOfData) {
             for (Data itemOfData : dataArrayList) {
                 if (itemOfType.equals(itemOfData.getName())) {
                     valuesMap.put(itemOfType, itemOfData.getValue());
@@ -45,8 +46,9 @@ public class Weather {
                 }
             }
         }
+        //досюда
         return valuesMap;
     }
 
-    private ArrayList<Data> dataArrayList;
+    private final ArrayList<Data> dataArrayList;
 }
