@@ -1,11 +1,14 @@
 import arduino.ArduinoThread;
-import com.sun.org.apache.xpath.internal.SourceTree;
+import formats.Weather;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.UnsupportedCommOperationException;
 import org.apache.commons.cli.*;
 import server.ThreadPool;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
@@ -16,24 +19,63 @@ public class Aroofino {
     public static void main(String[] args) {
         CommandLine commandLine = parseCLI(args);
         ArduinoThread weatherGetter = startArduinoThread(commandLine);
-
-
+        Weather currentWeather = getWeather(commandLine);
+        ThreadPool server = startServer(commandLine, currentWeather);
+        try {
+            currentWeather.wait();
+        } catch (InterruptedException ex) {
+            System.out.println("PIZDEC!" + ex.getMessage());
+        }
     }
 
-    private static ThreadPool startServer(CommandLine args) {
-        
+    /*Rewrite using exceptions*/
+    private static Weather getWeather(CommandLine args) {
+        Weather result = null;
+        if (args.hasOption("n")) {
+            result = new Weather(Integer.parseInt(args.getOptionValue("n")));
+        } else {
+            System.out.println("One or more options were not specified");
+            System.exit(1);
+        }
+        return result;
+    }
+
+    private static ThreadPool startServer(CommandLine args, Weather sharedVar) {
+        System.out.print("Starting server... ");
+        ThreadPool server = null;
+        if (args.hasOption("p")) {
+            try {
+                server = new ThreadPool(Integer.parseInt(args.getOptionValue("p")), sharedVar);
+            } catch (IOException ex) {
+                System.out.println("Internal programm error. Try again. Information: " +
+                        ex.getMessage());
+                System.exit(1);
+            } catch (ParserConfigurationException ex) {
+                System.out.println("Internal programm error. Try again. Information: " +
+                        ex.getMessage());
+                System.exit(1);
+            } catch (TransformerConfigurationException ex) {
+                System.out.println("Internal programm error. Try again. Information: " +
+                        ex.getMessage());
+                System.exit(1);
+            }
+        }
+        System.out.println("done");
+        System.out.println("Listening port: " + args.getOptionValue("p"));
+        return server;
     }
 
     private static ArduinoThread startArduinoThread(CommandLine args) {
+        System.out.print("Arduino connection... ");
+        ArduinoThread result = null;
         if (args.hasOption("a") && args.hasOption("b") && args.hasOption("t")) {
             try {
                 String port = args.getOptionValue("a");
                 int baudRate = Integer.parseInt(args.getOptionValue("b"));
                 int updateTime = Integer.parseInt(args.getOptionValue("t"));
-                ArduinoThread result = new ArduinoThread(port, baudRate, updateTime);
-                return result;
+                result = new ArduinoThread(port, baudRate, updateTime);
             } catch (NoSuchPortException ex) {
-                System.out.println("This  is not available. Information: " + ex.getMessage());
+                System.out.println("This port is not available. Information: " + ex.getMessage());
                 System.exit(1);
             } catch (PortInUseException ex) {
                 System.out.println("This port already use. Information: " + ex.getMessage());
@@ -50,7 +92,12 @@ public class Aroofino {
                         ex.getMessage());
                 System.exit(1);
             }
+        } else {
+            System.out.println("One or more options were not specified");
+            System.exit(1);
         }
+        System.out.println("done");
+        return result;
     }
 
     private static CommandLine parseCLI(String[] args) {
