@@ -1,14 +1,20 @@
 package server;
 
+import formats.Weather;
+import parsers.ServerParser;
+
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by vahriin on 3/6/17.
  */
 public class ClientThread implements Runnable {
-    public ClientThread(Socket sock) {
+    public ClientThread(Socket sock, Weather weatherLink, ServerParser parserLink) {
         clientSocket = sock;
+        weather = weatherLink;
+        parser = parserLink;
     }
 
     public void run() {
@@ -18,10 +24,8 @@ public class ClientThread implements Runnable {
             DataInputStream dataInput = new DataInputStream(input);
             DataOutputStream dataOutput = new DataOutputStream(output);
 
-            String request = dataInput.readUTF();
-            //processing request
-            dataOutput.writeUTF(response);
-
+            ArrayList<String> requestArray = parser.parse(dataInput.readUTF());
+            dataOutput.writeUTF(parser.createResponse(weather.getValues(requestArray)));
 
             clientSocket.close();
         } catch (IOException ex) {
@@ -29,5 +33,7 @@ public class ClientThread implements Runnable {
         }
     }
 
+    private ServerParser parser;
+    private Weather weather;
     private Socket clientSocket;
 }
