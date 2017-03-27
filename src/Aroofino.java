@@ -17,13 +17,11 @@ import java.util.TooManyListenersException;
 class Aroofino {
     public static void main(String[] args) {
         CommandLine commandLine = parseCLI(args);
-        ArduinoThread weatherGetter = startArduinoThread(commandLine);
         Weather currentWeather = getWeather(commandLine);
+        ArduinoThread weatherGetter = startArduinoThread(commandLine, currentWeather);
         ThreadPool server = startServer(commandLine, currentWeather);
 
-        while (true) {
-            currentWeather.updateValues(weatherGetter.getDataMap());
-        }
+
     }
 
     /*Rewrite using exceptions*/
@@ -63,7 +61,7 @@ class Aroofino {
         return server;
     }
 
-    private static ArduinoThread startArduinoThread(CommandLine args) {
+    private static ArduinoThread startArduinoThread(CommandLine args, Weather data) {
         System.out.print("Arduino connection... ");
         ArduinoThread result = null;
         if (args.hasOption("a") && args.hasOption("b") && args.hasOption("t")) {
@@ -71,7 +69,7 @@ class Aroofino {
                 String port = args.getOptionValue("a");
                 int baudRate = Integer.parseInt(args.getOptionValue("b"));
                 int updateTime = Integer.parseInt(args.getOptionValue("t"));
-                result = new ArduinoThread(port, baudRate, updateTime);
+                result = new ArduinoThread(port, baudRate, updateTime, data);
             } catch (NoSuchPortException ex) {
                 System.out.println("This port is not available. Information: " + ex.getMessage());
                 System.exit(1);
