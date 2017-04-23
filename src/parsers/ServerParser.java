@@ -1,8 +1,9 @@
 package parsers;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -86,18 +87,18 @@ public class ServerParser {
         transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
     }
 
-    public synchronized ArrayList<String> parse(String request) {
-        ArrayList<String> mapWeatherRequest = new ArrayList<>(5);
+    public static ArrayList<String> parse(String request) {
+        ArrayList<String> mapWeatherRequest = new ArrayList<>(4);
         try {
             Document docRequest = builder.parse(new InputSource(new StringReader(request)));
             NodeList listLevel1 = docRequest.getDocumentElement().getChildNodes();
 
             for (int i = 0 ; i < listLevel1.getLength(); i++) {
-                Element currentNode = (Element) listLevel1.item(i); //потенциальный косяк
-                if (currentNode.getTagName().equals("weather")) {
-                    NodeList weatherItems = currentNode.getElementsByTagName("name");
+                Node currentNode = listLevel1.item(i);
+                if (currentNode.getNodeName().equals("weather")) {
+                    NodeList weatherItems = currentNode.getChildNodes();
                     for (int j = 0; j < weatherItems.getLength(); j++) {
-                        mapWeatherRequest.add(weatherItems.item(i).getTextContent());
+                        mapWeatherRequest.add(weatherItems.item(j).getChildNodes().item(0).getTextContent());
                     }
                 }
 
@@ -110,10 +111,11 @@ public class ServerParser {
             System.err.println("ServerParserEx: parse fail " + ex.getMessage());
             mapWeatherRequest.add("error");
         }
+
         return mapWeatherRequest;
     }
 
-    public synchronized String createResponse(Map<String, String> valuesMap) {
+    public static String createResponse(Map<String, String> valuesMap) {
         Document document = builder.newDocument();
         Element root = document.createElement("response");
         Element weather = document.createElement("weather");

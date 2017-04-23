@@ -15,13 +15,13 @@ import java.util.TooManyListenersException;
  * Created by vahriin on 3/20/17.
  */
 class Aroofino {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         CommandLine commandLine = parseCLI(args);
         Weather currentWeather = getWeather(commandLine);
-        ArduinoThread weatherGetter = startArduinoThread(commandLine, currentWeather);
-        ThreadPool server = startServer(commandLine, currentWeather);
-
-
+        Thread weatherGetter = new Thread(startArduinoThread(commandLine, currentWeather));
+        weatherGetter.start();
+        Thread server = new Thread(startServer(commandLine, currentWeather));
+        server.start();
     }
 
     /*Rewrite using exceptions*/

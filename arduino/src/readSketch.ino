@@ -22,7 +22,7 @@ void loop() {
     printHumidity();
     printPressure();
     printRain();
-    Serial.println();
+    Serial.print('\n');
     delay(5000);
 }
 
@@ -35,9 +35,7 @@ void printDHTTemperature() {
 }
 
 void printBMPTemperature() {
-    Serial.print("<");
-    Serial.print("temperature");
-    Serial.print(":");
+    Serial.print("<temperature:");
     Serial.print(bmpSensor.readTemperature() + 273);
     Serial.print(">");
 }

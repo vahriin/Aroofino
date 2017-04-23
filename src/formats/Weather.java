@@ -24,7 +24,7 @@ public class Weather {
         dataArrayList.add(new Data("rain"));
     }
 
-    public void updateValues(Map<String, String> valuesMap) {
+    public synchronized void updateValues(Map<String, String> valuesMap) {
         for (Data itemOfData : dataArrayList) {
             try {
                 itemOfData.updateValue(valuesMap.get(itemOfData.getName()));
@@ -34,19 +34,19 @@ public class Weather {
         }
     }
 
-    public Map<String, String> getValues(ArrayList<String> typesOfData) {
+    public synchronized Map<String, String> getValues(ArrayList<String> typesOfData) {
         Map<String, String> valuesMap = new HashMap<>(typesOfData.size());
         //переписать потом
-        for (String itemOfType : typesOfData) {
-            for (Data itemOfData : dataArrayList) {
-                if (itemOfType.equals(itemOfData.getName())) {
-                    valuesMap.put(itemOfType, itemOfData.getValue());
-                } else {
-                    valuesMap.put(itemOfType, "Error");
-                }
+        for (Data itemOfData : dataArrayList) {
+            if (typesOfData.contains(itemOfData.getName())) {
+                valuesMap.put(itemOfData.getName(), itemOfData.getValue());
+            } else {
+                System.out.println("fuck");
+                valuesMap.put(itemOfData.getName(), "error");
             }
         }
         //досюда
+
         return valuesMap;
     }
 

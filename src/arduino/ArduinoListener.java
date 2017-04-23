@@ -1,60 +1,52 @@
 package arduino;
 
 import gnu.io.*;
+import userexcept.CorruptedDataException;
 
+import java.io.DataInputStream;
+//import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-//mport java.io.OutputStream;
+
 import java.util.TooManyListenersException;
 
 /**
  * Created by vahriin on 2/18/17.
  */
-class ArduinoListener implements SerialPortEventListener {
+class ArduinoListener extends Thread {
     private static final int TIME_OUT = 2000;
 
     ArduinoListener(String nameOfPort, int dataRate)
             throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException,
             IOException, TooManyListenersException {
-        inputMessage = new byte[0];
-        /*try{*/
+        super();
         SerialPort serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(nameOfPort)
                 .open(this.getClass().getName(), TIME_OUT); //set name
-        serialPort.setSerialPortParams(dataRate,
+        serialPort.setSerialPortParams(
+                dataRate,
                 SerialPort.DATABITS_8,
                 SerialPort.STOPBITS_1,
                 SerialPort.PARITY_NONE);
-        input = serialPort.getInputStream();
-        //output = serialPort.getOutputStream();
-        serialPort.addEventListener(this);
-        serialPort.notifyOnDataAvailable(true);
+
+        inputStream = new DataInputStream(serialPort.getInputStream());
+        //outputStream = new DataInputStream(serialPort.getOutputStream());
     }
 
-// --Commented out by Inspection START (3/27/17 11:28 PM):
-//    public synchronized void close() {
-//        if (serialPort != null) {
-//            serialPort.removeEventListener();
-//            serialPort.close();
-//        }
-//    }
-// --Commented out by Inspection STOP (3/27/17 11:28 PM)
-
-    public synchronized void serialEvent(SerialPortEvent oEvent) {
-        if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-            try {
-                int available = input.available();
-                byte data[] = new byte[available];
-                input.read(data, 0, available);
-                inputMessage = data;
-                //System.out.println(new String(inputMessage));
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                if (inputStream.available() > 0) {
+                    inputMessage = new byte[inputStream.available()];
+                    inputStream.read(inputMessage);
+                } else {
+                    Thread.sleep(1000);
+                }
             }
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        } catch (InterruptedException ex) {
+            System.err.println(ex.getMessage());
         }
-    }
-
-    public synchronized byte[] getMessage() {
-        return inputMessage;
     }
 
 // --Commented out by Inspection START (3/27/17 11:28 PM):
@@ -67,8 +59,16 @@ class ArduinoListener implements SerialPortEventListener {
 //    }
 // --Commented out by Inspection STOP (3/27/17 11:28 PM)
 
-    private InputStream input;
-    // --Commented out by Inspection (3/27/17 11:36 PM):private OutputStream output;
+    byte[] getInputMessage() throws CorruptedDataException {
+        if (inputMessage != null) {
+            return inputMessage;
+        } else {
+            throw new CorruptedDataException("No data available");
+        }
+    }
+
+    private DataInputStream inputStream;
+    // --Commented out by Inspection (3/27/17 11:36 PM):private DataOutputStream output;
     private byte[] inputMessage;
 }
 

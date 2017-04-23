@@ -24,8 +24,8 @@ import java.util.Map;
 
 public class ArduinoParser {
     public static Map<String, String> parse(byte[] message)
-            throws CorruptedDataException {
-        System.out.println(new String(message));
+            throws CorruptedDataException, ArrayIndexOutOfBoundsException {
+        //System.out.println(new String(message));
         if (message[0] == '<' && message[message.length - 2] == '>') { //check correct of data
 
             /*cut first '<' and last '>' and split*/
@@ -36,6 +36,7 @@ public class ArduinoParser {
                 String[] tempItem = item.split(":");
                 result.put(tempItem[0].toLowerCase(), tempItem[1].toLowerCase());
             }
+
             return result;
         } else {
             throw new CorruptedDataException("Data is corrupted");

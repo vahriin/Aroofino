@@ -25,14 +25,14 @@ public class ThreadPool implements Runnable {
 
     public void run() {
         Socket client;
-        while (true) {
-            try {
+        try {
+            while (true) {
                 client = listenedPort.accept();
                 threadPool.execute(new ClientThread(client, data, parser));
-            } catch (IOException ex) {
-                threadPool.shutdown();
-                System.err.println("ListenerDaemonEx: " + ex.getMessage());
             }
+        } catch (IOException ex) {
+            threadPool.shutdown();
+            System.err.println("ListenerDaemonEx: " + ex.getMessage());
         }
     }
 

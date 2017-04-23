@@ -19,7 +19,7 @@ class Data {
 // --Commented out by Inspection STOP (3/27/17 11:42 PM)
 
 
-    public void updateValue(String newValue) throws NegativeMeaningException {
+    void updateValue(String newValue) throws NegativeMeaningException {
         if (!isNegative(newValue)) {
             value = newValue;
         } else {
