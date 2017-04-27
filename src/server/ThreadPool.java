@@ -15,29 +15,26 @@ import java.util.concurrent.Executors;
  * Created by vahriin on 3/26/17.
  */
 public class ThreadPool implements Runnable {
-    public ThreadPool (int port, Weather currentData)
+    public ThreadPool (int port, Weather currentWeatherLink)
             throws IOException, ParserConfigurationException, TransformerConfigurationException {
         threadPool = Executors.newCachedThreadPool();
         listenedPort = new ServerSocket(port);
-        data = currentData;
-        parser = new ServerParser();
+        weatherLink = currentWeatherLink;
     }
 
     public void run() {
-        Socket client;
-        try {
-            while (true) {
-                client = listenedPort.accept();
-                threadPool.execute(new ClientThread(client, data, parser));
+        while (true) {
+            try {
+                Socket client = listenedPort.accept();
+                threadPool.execute(new ClientThread(client, weatherLink));
+            } catch (IOException ex) {
+                threadPool.shutdown();
+                System.err.println("ListenerDaemonEx: " + ex.getMessage());
             }
-        } catch (IOException ex) {
-            threadPool.shutdown();
-            System.err.println("ListenerDaemonEx: " + ex.getMessage());
         }
     }
 
-    private ServerParser parser;
-    private Weather data;
+    private Weather weatherLink;
     private ServerSocket listenedPort;
     private final ExecutorService threadPool;
 }

@@ -14,31 +14,34 @@ import java.util.TooManyListenersException;
  * Created by vahriin on 3/20/17.
  */
 public class ArduinoThread implements Runnable {
-    public ArduinoThread(String nameOfPort, int baudRate, int updateTime, Weather data)
-            throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException,
-            IOException, TooManyListenersException {
+    public ArduinoThread(String nameOfPort, int baudRate, int updateTime, Weather currentWeatherLink) throws
+            NoSuchPortException, 
+            PortInUseException, 
+            UnsupportedCommOperationException,
+            IOException, 
+            TooManyListenersException {
+        
         sleepTime = updateTime;
-        currentWeather = data;
+        weatherLink = currentWeatherLink;
         listener = new ArduinoListener(nameOfPort, baudRate);
         listener.start();
+        
     }
 
     public void run() {
         while (true) {
             try {
                 Thread.sleep(1000 * sleepTime);
-                currentWeather.updateValues(ArduinoParser.parse(listener.getInputMessage()));
+                weatherLink.updateValues(ArduinoParser.parse(listener.getInputMessage()));
             } catch (CorruptedDataException ex) {
                 System.err.println("ArduinoThreadEx: " + ex.getMessage());
             } catch (InterruptedException ex) {
                 System.err.println("ArduinoThreadEx: " + ex.getMessage());
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                System.err.println("Out of bound");
             }
         }
     }
 
     private int sleepTime;
-    private Weather currentWeather;
+    private Weather weatherLink;
     private ArduinoListener listener;
 }

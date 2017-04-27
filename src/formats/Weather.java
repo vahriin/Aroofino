@@ -36,17 +36,13 @@ public class Weather {
 
     public synchronized Map<String, String> getValues(ArrayList<String> typesOfData) {
         Map<String, String> valuesMap = new HashMap<>(typesOfData.size());
-        //переписать потом
         for (Data itemOfData : dataArrayList) {
             if (typesOfData.contains(itemOfData.getName())) {
                 valuesMap.put(itemOfData.getName(), itemOfData.getValue());
             } else {
-                System.out.println("fuck");
                 valuesMap.put(itemOfData.getName(), "error");
             }
         }
-        //досюда
-
         return valuesMap;
     }
 

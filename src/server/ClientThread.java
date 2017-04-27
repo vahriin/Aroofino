@@ -11,21 +11,18 @@ import java.util.ArrayList;
  * Created by vahriin on 3/6/17.
  */
 class ClientThread implements Runnable {
-    ClientThread(Socket sock, Weather weatherLink, ServerParser parserLink) {
+    ClientThread(Socket sock, Weather currentWeatherLink) {
         clientSocket = sock;
-        weather = weatherLink;
-        parser = parserLink;
+        weatherLink = currentWeatherLink;
     }
 
     public void run() {
         try {
-            InputStream input = clientSocket.getInputStream();
-            OutputStream output = clientSocket.getOutputStream();
-            DataInputStream dataInput = new DataInputStream(input);
-            DataOutputStream dataOutput = new DataOutputStream(output);
+            DataInputStream dataInput = new DataInputStream(clientSocket.getInputStream());
+            DataOutputStream dataOutput = new DataOutputStream(clientSocket.getOutputStream());
 
-            ArrayList<String> requestArray = parser.parse(dataInput.readUTF());
-            dataOutput.writeUTF(parser.createResponse(weather.getValues(requestArray)));
+            ArrayList<String> request = ServerParser.parse(dataInput.readUTF());
+            dataOutput.writeUTF(ServerParser.createResponse(weatherLink.getValues(request)));
 
             clientSocket.close();
         } catch (IOException ex) {
@@ -33,7 +30,6 @@ class ClientThread implements Runnable {
         }
     }
 
-    private final ServerParser parser;
-    private Weather weather;
+    private Weather weatherLink;
     private final Socket clientSocket;
 }

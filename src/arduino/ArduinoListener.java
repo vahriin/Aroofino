@@ -33,19 +33,19 @@ class ArduinoListener extends Thread {
 
     @Override
     public void run() {
-        try {
-            while (true) {
+        while (true) {
+            try {
                 if (inputStream.available() > 0) {
                     inputMessage = new byte[inputStream.available()];
                     inputStream.read(inputMessage);
                 } else {
                     Thread.sleep(1000);
                 }
+            } catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            } catch (InterruptedException ex) {
+                System.err.println(ex.getMessage());
             }
-        } catch (IOException ex) {
-            System.err.println(ex.getMessage());
-        } catch (InterruptedException ex) {
-            System.err.println(ex.getMessage());
         }
     }
 

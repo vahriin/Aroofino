@@ -78,13 +78,7 @@ import java.util.Map;
 
 public class ServerParser {
     public ServerParser() throws ParserConfigurationException, TransformerConfigurationException {
-        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
-        transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-        transformer.setOutputProperty(OutputKeys.INDENT, "no");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
     }
 
     public static ArrayList<String> parse(String request) {
@@ -156,5 +150,26 @@ public class ServerParser {
     }
 
     private static DocumentBuilder builder;
+    static {
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException ex) {
+            System.err.println("Failed initialization of DocumentBuilder: " + ex.getMessage());
+            System.exit(1);
+        }
+    }
+
     private static Transformer transformer;
+    static {
+        try {
+            transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        } catch (TransformerConfigurationException ex) {
+            System.err.println("Failed initialization of Transformer: " + ex.getMessage());
+            System.exit(1);
+        }
+    }
 }

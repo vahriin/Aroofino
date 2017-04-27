@@ -23,21 +23,20 @@ import java.util.Map;
  */
 
 public class ArduinoParser {
-    public static Map<String, String> parse(byte[] message)
+    public static Map<String, String> parse(byte[] request)
             throws CorruptedDataException, ArrayIndexOutOfBoundsException {
-        //System.out.println(new String(message));
-        if (message[0] == '<' && message[message.length - 2] == '>') { //check correct of data
+        if (request[0] == '<' && request[request.length - 2] == '>') { // check correct of data
 
-            /*cut first '<' and last '>' and split*/
-            String[] itemsString = new String(message).substring(1,message.length - 2).split("><");
-            Map<String, String> result = new HashMap<>(itemsString.length);
+            /* cut first '<' and last '>' and split */
+            String[] requestedWeatherTypes = new String(request).substring(1,request.length - 2).split("><");
+            Map<String, String> mapTypesAndValues = new HashMap<>(requestedWeatherTypes.length);
 
-            for (String item : itemsString) {
+            for (String item : requestedWeatherTypes) {
                 String[] tempItem = item.split(":");
-                result.put(tempItem[0].toLowerCase(), tempItem[1].toLowerCase());
+                mapTypesAndValues.put(tempItem[0].toLowerCase(), tempItem[1].toLowerCase());
             }
 
-            return result;
+            return mapTypesAndValues;
         } else {
             throw new CorruptedDataException("Data is corrupted");
         }
